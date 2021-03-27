@@ -93,6 +93,8 @@ public class DetailBarang extends AppCompatActivity {
         showall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent intent1 = new Intent(DetailBarang.this, TotalCart.class);
+                startActivity(intent1);
             }
         });
 
