@@ -6,7 +6,39 @@
     android:layout_height="match_parent"
     tools:context=".ImagesActivity">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/ll"
+        android:orientation="horizontal"
+        android:padding="20dp"
+        android:gravity="center">
+
+        <EditText
+            android:id="@+id/txtSearch"
+            android:layout_width="222dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:hint="Search Here.."
+            android:textSize="20sp"/>
+
+        <ImageButton
+            android:src="@drawable/ic_search"
+            android:background="@color/design_default_color_primary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnSearch"
+            android:layout_marginLeft="10dp"/>
+
+
+
+    </LinearLayout>
+
+
+
     <androidx.recyclerview.widget.RecyclerView
+        android:layout_marginTop="10dp"
+        android:layout_below="@id/ll"
         android:id="@+id/recycle_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
