@@ -45,29 +45,29 @@ public class ImagesActivity extends AppCompatActivity {
         rvView.setLayoutManager(new LinearLayoutManager(this));
 
         lbrg = new ArrayList<>();
+        btnSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SearchData(txtSearch.getText().toString());
+            }
+        });
+    }
 
+    private void showAll() {
         databaseReference = FirebaseDatabase.getInstance().getReference("data-barang");
-
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-               for (DataSnapshot item : snapshot.getChildren()) {
-                   Barang brg = item.getValue(Barang.class);
-                   lbrg.add(brg);
-               }
+                for (DataSnapshot item : snapshot.getChildren()) {
+                    Barang brg = item.getValue(Barang.class);
+                    lbrg.add(brg);
+                }
                 viewData(lbrg);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Toast.makeText(ImagesActivity.this, error.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        btnSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SearchData(txtSearch.getText().toString());
             }
         });
     }
@@ -96,5 +96,12 @@ public class ImagesActivity extends AppCompatActivity {
     private void viewData(List list) {
         adapter = new ImageAdapter(ImagesActivity.this, list);
         rvView.setAdapter(adapter);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        lbrg.clear();
+        showAll();
     }
 }

@@ -1,18 +1,27 @@
 package com.example.firebaseimage;
 
 public class Barang {
-    private String nama,deskripsi, imageUrl;
+    private String nama,deskripsi, imageUrl,id;
 
     public Barang() {
     }
 
-    public Barang(String nama, String deskripsi, String imageUrl) {
+    public Barang(String id,String nama, String deskripsi, String imageUrl) {
         if (nama.trim().equals("")) {
             nama = "No Name";
         }
+        this.id = id;
         this.nama = nama;
         this.deskripsi = deskripsi;
         this.imageUrl = imageUrl;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getNama() {

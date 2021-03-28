@@ -13,6 +13,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -33,7 +38,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageHolder>
 
         public ImageHolder(@NonNull View itemView) {
             super(itemView);
-
             tvName = itemView.findViewById(R.id.tv_name);
             tvDekripsi = itemView.findViewById(R.id.tv_deskripsi);
             imageView = itemView.findViewById(R.id.img_view);
@@ -45,7 +49,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageHolder>
     public ImageHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(ctx).inflate(R.layout.images_item, parent, false);
         return new ImageHolder(v);
-
     }
 
     @Override
@@ -59,10 +62,24 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageHolder>
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(ctx, DetailBarang.class);
+                intent.putExtra("id", brang.getId());
                 intent.putExtra("nama", brang.getNama());
                 intent.putExtra("deksripsi", brang.getDeskripsi());
                 intent.putExtra("url", brang.getImageUrl());
                 ctx.startActivity(intent);
+            }
+        });
+
+        holder.imageView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Intent intent1 = new Intent(ctx, UpdateBarang.class);
+                intent1.putExtra("id", brang.getId());
+                intent1.putExtra("nama", brang.getNama());
+                intent1.putExtra("deksripsi", brang.getDeskripsi());
+                intent1.putExtra("url", brang.getImageUrl());
+                ctx.startActivity(intent1);
+                return false;
             }
         });
     }

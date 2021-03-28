@@ -118,10 +118,10 @@ public class MainActivity extends AppCompatActivity {
                             while (!uriTask.isSuccessful());
                                 Uri downloadUri = uriTask.getResult();
 
+                            String id = String.valueOf(System.currentTimeMillis());
 
-                            Barang barang = new Barang(etNama.getText().toString(), etDeskripsi.getText().toString(), downloadUri.toString());
-                            String uploadId = databaseReference.push().getKey();
-                            databaseReference.child(uploadId).setValue(barang);
+                            Barang barang = new Barang(id,etNama.getText().toString(), etDeskripsi.getText().toString(), downloadUri.toString());
+                            databaseReference.child(id).setValue(barang);
                             if (uploadTask.isSuccessful()) {
                                 etDeskripsi.setText("");
                                 etNama.setText("");
