@@ -1,6 +1,8 @@
 package com.example.firebaseimage;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.ContentResolver;
@@ -14,6 +16,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
@@ -48,6 +51,7 @@ public class UpdateBarang extends AppCompatActivity {
         img = findViewById(R.id.imgView);
         btnDelete = findViewById(R.id.btnDelete);
         btnUpdate = findViewById(R.id.btnUpdate);
+        databaseReference = FirebaseDatabase.getInstance().getReference("data-barang");
 
         Intent intent = getIntent();
         id.setText(intent.getStringExtra("id"));
@@ -67,7 +71,27 @@ public class UpdateBarang extends AppCompatActivity {
         btnDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                deleteData();
+
+                AlertDialog builder = new AlertDialog.Builder(UpdateBarang.this)
+                        .setMessage("Delete Data?")
+                        .setPositiveButton("Yes", null)
+                        .setNegativeButton("No", null)
+                        .show();
+                Button positiveBtn = builder.getButton(AlertDialog.BUTTON_POSITIVE);
+                positiveBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        deleteData(url, id.getText().toString());
+                        builder.dismiss();
+                    }
+                });
+                Button negativBtn = builder.getButton(AlertDialog.BUTTON_NEGATIVE);
+                negativBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        builder.dismiss();
+                    }
+                });
             }
         });
 
@@ -97,6 +121,7 @@ public class UpdateBarang extends AppCompatActivity {
         Picasso.with(this).load(uri).into(img);
     }
 
+    //get extension
     private String getUriImage(Uri uri) {
         ContentResolver Cr = getContentResolver();
         MimeTypeMap mime = MimeTypeMap.getSingleton();
@@ -109,11 +134,19 @@ public class UpdateBarang extends AppCompatActivity {
             storageReference.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    Toast.makeText(UpdateBarang.this, "Image Updated", Toast.LENGTH_SHORT).show();
-                    Task<Uri> uriTask = taskSnapshot.getStorage().getDownloadUrl();
-                    while (!uriTask.isSuccessful());
-                    Uri downloadUri = uriTask.getResult();
-                    updateInfo(downloadUri.toString(), idBarang);
+                    //delete previous img
+                    StorageReference reference = FirebaseStorage.getInstance().getReferenceFromUrl(url);
+                    reference.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            //start update entry to db
+                            Toast.makeText(UpdateBarang.this, "Image Updated", Toast.LENGTH_SHORT).show();
+                            Task<Uri> uriTask = taskSnapshot.getStorage().getDownloadUrl();
+                            while (!uriTask.isSuccessful());
+                            Uri downloadUri = uriTask.getResult();
+                            updateInfo(downloadUri.toString(), idBarang);
+                        }
+                    });
                 }
             });
         } else {
@@ -122,18 +155,38 @@ public class UpdateBarang extends AppCompatActivity {
     }
 
     private void updateInfo(String urlGambar, String idBarang) {
-        databaseReference = FirebaseDatabase.getInstance().getReference("data-barang").child(idBarang);
+        databaseReference.child(idBarang);
         Barang brg = new Barang(idBarang, nama.getText().toString(), deskripsi.getText().toString(), urlGambar);
         databaseReference.setValue(brg).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                Toast.makeText(UpdateBarang.this, "Update Sukses", Toast.LENGTH_SHORT).show();
+                Toast.makeText(UpdateBarang.this, "Update Success", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
 
-    private void deleteData() {
+    private void deleteData(String url, String id) {
+        databaseReference.child(id).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                StorageReference reference = FirebaseStorage.getInstance().getReferenceFromUrl(url);
+                reference.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(UpdateBarang.this, "Delete Data Success", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(UpdateBarang.this, ImagesActivity.class);
+                        startActivity(intent);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(UpdateBarang.this, "Delete Data Failed!", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
     }
+
 
 }
